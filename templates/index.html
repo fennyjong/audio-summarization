@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio to Text Transcription</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .input-area {
+            background-color: #f9f9f9;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-area:hover {
+            border-color: #007bff;
+        }
+
+        .input-icon {
+            font-size: 36px;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .file-label:hover {
+            background-color: #0056b3;
+        }
+
+        #transcriptOutput {
+            width: 100%;
+            height: 150px;
+            margin-top: 20px;
+            padding: 15px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-size: 14px;
+            resize: vertical;
+            background-color: #ffffff;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .output-container {
+            margin-top: 20px;
+        }
+        .output-box {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            height: 200px;
+            overflow-y: auto;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #007bff;
+            transition: color 0.3s ease;
+        }
+
+        .icon-button:hover {
+            color: #0056b3;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading i {
+            font-size: 24px;
+            color: #007bff;
+        }
+
+        #audioFileName {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        #summarizeBtn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+            font-size: 14px;
+            opacity: 1;
+     }
+
+        #summarizeBtn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+    }
+
+        #summarizeBtn:not(:disabled):hover {
+            background-color: #0056b3;
+    }
+
+        @media (max-width: 600px) {
+            .header {
+                font-size: 20px;
+                padding: 15px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            #transcriptOutput {
+                height: 100px;
+                font-size: 12px;
+            }
+
+            .input-icon {
+                font-size: 30px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body></body>
+    <div class="header">Audio to Text Transcription</div>
+    <div class="container">
+        <h2>Input</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="input-area" id="dropArea">
+                <i class="fas fa-cloud-upload-alt input-icon"></i>
+                <p>Drag & drop an audio file or click to upload</p>
+                <input type="file" name="audio_file" id="fileInput" accept="audio/*">
+                <label for="fileInput" class="file-label">Choose Audio File</label>
+                <div id="audioFileName">No file selected</div>
+            </div>
+        </form>
+        <div class="loading" id="loadingIndicator">
+            <i class="fas fa-spinner fa-spin"></i> Transcribing...
+        </div>
+        <div class="output-container">
+            <h3>Transcription</h3>
+            <div id="transcriptOutput" class="output-box">Your transcript will appear here...</div>
+            <div class="icon-container">
+                <button type="button" class="icon-button" id="copyTranscript" title="Copy transcript">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button type="button" class="icon-button" id="downloadTranscript" title="Download transcript">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button type="button" id="summarizeBtn" disabled>Summarize</button>
+            </div>
+        </div>
+        <div class="output-container">
+            <h3>Summary</h3>
+            <div id="summaryOutput" class="output-box">Your summary will appear here...</div>
+            <div class="icon-container">
+                <button type="button" class="icon-button" id="copySummary" title="Copy summary">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button type="button" class="icon-button" id="downloadSummary" title="Download summary">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const audioFileNameDiv = document.getElementById('audioFileName');
+        const transcriptOutput = document.getElementById('transcriptOutput');
+        const summaryOutput = document.getElementById('summaryOutput');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const dropArea = document.getElementById('dropArea');
+        const summarizeBtn = document.getElementById('summarizeBtn');
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                fileInput.files = files;
+                processFile(files[0]);
+            }
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        });
+
+        function processFile(file) {
+            audioFileNameDiv.textContent = `Selected audio: ${file.name}`;
+            transcriptOutput.textContent = 'Processing audio...';
+            summaryOutput.textContent = 'Summary will appear here after transcription...';
+            loadingIndicator.style.display = 'block';
+            document.getElementById('summarizeBtn').disabled = true;
+            
+            const formData = new FormData();
+            formData.append('audio_file', file);
+
+            fetch('/transcribe', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingIndicator.style.display = 'none';
+                if (data.transcription) {
+                    transcriptOutput.textContent = data.transcription;
+                    document.getElementById('summarizeBtn').disabled = false;
+                } else {
+                    transcriptOutput.textContent = 'Failed to transcribe the audio.';
+                    summaryOutput.textContent = 'Failed to generate summary.';
+                }
+            })
+            .catch(error => {
+                loadingIndicator.style.display = 'none';
+                transcriptOutput.textContent = 'Error occurred while processing the audio.';
+                summaryOutput.textContent = 'Error occurred while generating the summary.';
+            });
+        }
+
+        document.getElementById('summarizeBtn').addEventListener('click', function() {
+            const transcript = transcriptOutput.textContent;
+            if (transcript && transcript !== 'Processing audio...') {
+                fetch('/summarize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ transcription: transcript })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.summary) {
+                        summaryOutput.textContent = data.summary;
+                    } else {
+                        summaryOutput.textContent = 'Failed to generate summary.';
+                    }
+                })
+                .catch(error => {
+                    summaryOutput.textContent = 'Error occurred while generating the summary.';
+                });
+            }
+        });
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        function downloadText(text, filename) {
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('copyTranscript').addEventListener('click', function() {
+            copyToClipboard(transcriptOutput.textContent);
+        });
+
+        document.getElementById('downloadTranscript').addEventListener('click', function() {
+            downloadText(transcriptOutput.textContent, 'transcript.txt');
+        });
+
+        document.getElementById('copySummary').addEventListener('click', function() {
+            copyToClipboard(summaryOutput.textContent);
+        });
+
+        document.getElementById('downloadSummary').addEventListener('click', function() {
+            downloadText(summaryOutput.textContent, 'summary.txt');
+        });
+    </script>
+</body>
+</html>

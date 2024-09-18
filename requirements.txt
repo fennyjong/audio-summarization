@@ -1,0 +1,12 @@
+flask 
+whisper
+pydub
+transformers
+scipy 
+numpy
+nltk 
+spacy 
+pydub 
+whisper-timestamped 
+torch
+flask-socketio
