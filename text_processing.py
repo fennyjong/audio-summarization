@@ -17,16 +17,18 @@ def setup_nltk():
 setup_nltk()
 
 def preprocess_text(text):
-    text = text.lower()
+    # Tokenize the original sentences
     sentences = sent_tokenize(text)
+
+    # Process the text for similarity calculation
     lemmatizer = WordNetLemmatizer()
     stop_words = set(stopwords.words('indonesian'))
-    
+
     preprocessed_sentences = []
     for sentence in sentences:
-        words = word_tokenize(sentence)
+        words = word_tokenize(sentence.lower())  # Lowercase for processing
         words = [lemmatizer.lemmatize(word) for word in words if word.isalnum() and word not in stop_words]
-        preprocessed_sentences.append(words)  # Store as list of words instead of string
+        preprocessed_sentences.append(words)  # Store processed list of words
     
     return sentences, preprocessed_sentences
 
@@ -45,7 +47,8 @@ def calculate_similarity(filtered_sentences):
     return similarity_matrix
 
 def textrank_summarize(text, num_sentences=3):
-    sentences, preprocessed_sentences = preprocess_text(text)
+    # Preprocess the text
+    original_sentences, preprocessed_sentences = preprocess_text(text)
     similarity_matrix = calculate_similarity(preprocessed_sentences)
 
     # Step 4: Calculate WS(Si) with PageRank
@@ -53,7 +56,7 @@ def textrank_summarize(text, num_sentences=3):
     scores = nx.pagerank(graph)
 
     # Step 5: Display and Save Results
-    sentence_labels = [f"S{i+1}" for i in range(len(sentences))]
+    sentence_labels = [f"S{i+1}" for i in range(len(original_sentences))]
     similarity_df = pd.DataFrame(similarity_matrix, columns=sentence_labels, index=sentence_labels)
     
     print("Matriks Kemiripan (Similarity Matrix):")
@@ -70,7 +73,7 @@ def textrank_summarize(text, num_sentences=3):
     # Sort the indices of the top sentences to maintain original order
     sorted_top_sentences_indices = sorted(top_sentences_indices)
     
-    # Create summary from sorted top sentences
-    summary = ' '.join([sentences[index] for index in sorted_top_sentences_indices])
+    # Create summary from sorted top sentences (using original sentences)
+    summary = ' '.join([original_sentences[index] for index in sorted_top_sentences_indices])
     
     return summary
