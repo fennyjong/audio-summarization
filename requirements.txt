@@ -10,3 +10,7 @@ pydub
 whisper-timestamped 
 torch
 flask-socketio
+scikit-learn
+#python -m venv myenv untuk memulai
+# myenv\Scripts\activate.bat
+#pip install python-dotenv

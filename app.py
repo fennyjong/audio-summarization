@@ -1,8 +1,13 @@
 import os
 import time
+import nltk  # Import nltk
 from flask import Flask, render_template, request, jsonify
 from audio_processing import convert_to_wav, transcribe_audio, save_transcription, cleanup_files
-from text_processing import textrank_summarize
+from text_processing import textrank_summarize  # Ensure you have this implemented
+
+# Download necessary NLTK resources
+nltk.download('punkt')
+nltk.download('stopwords')
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -15,9 +20,7 @@ os.makedirs(app.config['RESULTS_FOLDER'], exist_ok=True)
 os.makedirs(app.config['SUMMARIES_FOLDER'], exist_ok=True)
 
 def save_file(file, upload_folder):
-    """
-    Save the uploaded file to the specified folder.
-    """
+    """Save the uploaded file to the specified folder."""
     upload_path = os.path.join(upload_folder, file.filename)
     file.save(upload_path)
     return upload_path

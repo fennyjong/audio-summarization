@@ -21,7 +21,7 @@ def preprocess_text(text):
     text = text.lower()
     sentences = sent_tokenize(text)
     lemmatizer = WordNetLemmatizer()
-    stop_words = set(stopwords.words('english'))
+    stop_words = set(stopwords.words('indonesian'))
     
     preprocessed_sentences = []
     for sentence in sentences:
@@ -31,7 +31,7 @@ def preprocess_text(text):
     
     return preprocessed_sentences
 
-def textrank_summarize(text, num_sentences=5):
+def textrank_summarize(text, num_sentences=3):
     sentences = sent_tokenize(text)
     preprocessed_sentences = preprocess_text(text)
     
