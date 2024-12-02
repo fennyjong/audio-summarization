@@ -67,5 +67,7 @@ Open your browser and navigate to `http://localhost:5000`
 
 ## 📧 Contact
 Thank you for checking out my project! Feel free to reach out if you have any questions or feedback. Suggestions are always welcome.
+
 Fenny Jong - fennyjong7@gmail.com
+
 Project Link: [https://github.com/username/audio-summarization](https://github.com/fennyjong/audio-summarization)
